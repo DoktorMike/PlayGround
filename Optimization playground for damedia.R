@@ -1,12 +1,10 @@
 library(ggplot2)
 library(scales)
 library(nloptr)
-f<-function(x) {
-  y<-2*sin(0.3*x/pi)+4*cos(0.04*x/pi)+6
-  y[x<50] <- 0
-  y[x>1200] <- 0
-  y
-}
+
+# Testing the Bolognese function ------------------------------------------
+
+f<-function(x) { y<-2*sin(0.3*x/pi)+4*cos(0.04*x/pi)+6; y[x<50] <- 0; y[x>1200] <- 0; y}
 fp<-function(x, h=1) (f(x+h)-f(x-h))/(2*h)
 
 x <- -100:1300; qplot(x, f(x), geom="line") + ylab("Bolognese quality f(t)") + xlab("t") + theme_minimal()
@@ -64,3 +62,8 @@ for(i in 1:length(a)){
 gather(retdf) %>% ggplot(aes(y=value, x=key, fill=key)) + geom_boxplot() + theme_minimal() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 gather(retdf) %>% ggplot(aes(x=value, fill=key)) + geom_histogram() + theme_minimal()
+
+
+# Damedia testing comparing to allob --------------------------------------
+
+
