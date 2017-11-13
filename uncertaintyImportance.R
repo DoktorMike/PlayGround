@@ -16,4 +16,4 @@ ggplot(mydf, aes(x=ROI, group=Media, fill=Media)) + geom_density(alpha=0.5) + th
   ylab("Probability")
 ggplot(mydf, aes(x=ROI, group=Media, fill=Media)) + geom_density(alpha=0.5) + theme_minimal(base_size = 15) +
   scale_fill_brewer(type = "qual", palette = 6) + facet_grid(Media~.) + geom_vline(xintercept = 0.5) +
-  ylab("Probability")
+  ylab("Probability") + xlim(0, 3.5)
