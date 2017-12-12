@@ -5,6 +5,10 @@ function sphere_vol(r)
     return 4/3*pi*r^3
 end
 
+pifun(r) = 2π*r
+
+print(pifun(1))
+
 # Short function definition
 sphere2(x, y) = x*y
 println(sphere2(2,3))
@@ -39,4 +43,5 @@ catch err
     showerror(STDOUT, err, backtrace());println()
 end
 println("Continuing after error")
+
 
