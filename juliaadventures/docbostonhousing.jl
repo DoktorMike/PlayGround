@@ -69,13 +69,17 @@ p2 = scatter(predict(ω, x)', y', reg=true, xlabel="Predicted", ylabel="Observed
 plot(p1, p2, layout=(1,2), size=(950,500))
 
 #' ## Increasing model complexity
-#' Since we made a toy model before which basically was a simple multiple linear regression model, we will step into the land of deep learning. Well, we'll use two hidden layers instead of none. The way to go about this is actually ridiculously simple. Since we've written all code so far in Raw Julia except for the grad function, which comes from the AutoGrad package, we can readily extend the depth of our network. 
-#' The first thing we need to do is to define the weights of our network and thereby our new structure. We will build a neural network with 
+#' Since we made a toy model before which basically was a simple multiple linear regression model, we will step into the land of deep learning. Well, we'll use two hidden layers instead of none. The way to go about this is actually ridiculously simple. Since we've written all code so far in Raw Julia except for the grad function, which comes from the AutoGrad package, we can readily extend the depth of our network. But before we move on let's save the network we trained from before.
+
+ω1 = ω;
+
+#' Now that that's out of the way the next thing we need to do is to define the weights of our network and thereby our new structure. We will build a neural network with 
 #' - One input layer of size 13
 #' - A hidden layer of size 64
 #' - Another hidden layer of size 15
 #' - A final output layer which will be our prediction
 #' which will have way more parameters than needed to solve this, but we'll add all these parameters just for fun. We'll return to why this is a horrible idea later. Knowing the overall structure we can now define our new $\omega$. When you read it please bear in mind that we use a [weights,bias,weights,bias] structure.
+
 ω = Any[0.1f0*randn(Float32,64,13), zeros(Float32,64,1),
         0.1f0*randn(Float32,15,64), zeros(Float32,15,1),
         0.1f0*randn(Float32,1,15),  zeros(Float32,1,1)]
@@ -112,7 +116,8 @@ p3 = scatter(errdf[:,:Epoch], errdf[:,:Error], xlabel="Epoch", ylabel="Error")
 p4 = scatter(predict(ω, x)', y', reg=true, xlabel="Predicted", ylabel="Observed")
 plot(p3, p4, layout=(1,2), size=(950,500))
 
-#' But the interesting comparison is of course how much better the fit really was. We can show the correlation plots from both models next to each other.
+#' But the interesting comparison is of course how much better the fit really was. We can show the correlation plots from both models next to each other. The correlation for the first model was `j print(round(cor(predict(ω1, x)', y'), 2))` while for our latest version it was `j print(round(cor(predict(ω, x)', y'), 2))`.
 
 plot(p2, p4, layout=(1,2), size=(950,500))
+
 
