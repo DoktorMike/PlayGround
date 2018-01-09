@@ -120,4 +120,29 @@ plot(p3, p4, layout=(1,2), size=(950,500))
 
 plot(p2, p4, layout=(1,2), size=(950,500))
 
+#' As the complexity is probably high enough it makes sense to check if it's too flexible and have a validation run duing our fitting process. This is usually rather instructive when dealing with highly parameterized functions. We start by splitting our data set up in training and testing. 
+
+xtrn, xtst = x[:, 1:400], x[:, 401:end]
+ytrn, ytst = y[:, 1:400], y[:, 401:end]
+
+ω = Any[0.1f0*randn(Float32,64,13), zeros(Float32,64,1),
+        0.1f0*randn(Float32,15,64), zeros(Float32,15,1),
+        0.1f0*randn(Float32,1,15),  zeros(Float32,1,1)]
+errdf = DataFrame(Epoch=1:60, TrnError=0.0, ValError=0.0)
+cntr = 1
+for i=1:600
+    train(ω, [(xtrn, ytrn)])
+    if mod(i, 10) == 0
+        errdf[cntr, :Epoch]=i
+        errdf[cntr, :TrnError]=loss(ω,xtrn,ytrn)
+        errdf[cntr, :ValError]=loss(ω,xtst,ytst)
+        cntr+=1
+    end
+end
+
+#' After doing the training we can inspect what happens with the training and validation error over time. What you are seeing is extremely typical for neural networks that are not regularized or treated in a Bayesian way. Initially both the training error and the validation error goes down. However, as the model gets better and better at fitting the traning set it gets worse at the validation set which is not part of the training. 
+
+using StatPlots
+@df errdf[5:60,:] plot(:Epoch, [:ValError, :TrnError], xlabel="Epoch", ylabel="Error", 
+                       label=["Validation" "Training"], lw=3)
 
