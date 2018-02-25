@@ -55,5 +55,8 @@ print(net)
 
 params = list(net.parameters())
 
+x = Variable(torch.randn(1, 1, 32, 32))
+out = net(x)
+print(out)
 
 
