@@ -1,0 +1,42 @@
+---
+title: "Bayesian Heteroskedastic Uncertainty"
+output: html_notebook
+---
+
+# Introduction
+
+# Graphs
+
+Let's do a normal square error approach and add the uncertainty term and plot out the consequence.
+
+```{r}
+error <- function(o, p, s) sqrt((o-p)^2)/(2*s^2) + log(s^2)
+curve(error(1, 0.5, x), from = -10, to = 10)
+```
+ In there it's clear that the uncertainty component is the heaviest of the error on the data and the uncertainty. In these cases the model will just respond by increasing the uncertainty instead of focusing on learning the problem. So we can fix this by considering a cross entropy error function instead. 
+ 
+```{r}
+errorCEE <- function(o, p, s) (p^(1-o) + (1-p)^o ) / (2*s^2) + log(s^2)
+curve(errorCEE(1, 0.5, x), from = 0.3, to = 10)
+```
+
+However, this still shows how the error is scaling with the uncertainty component but not how it scales with the error in the prediction. We can use both dimensions to get a feel for this. The s is the uncertainty and p is the prediction. The error is then in the contour.
+
+```{r fig.width=10, message=FALSE, warning=FALSE, paged.print=FALSE}
+s <- seq(0.5, 2, 0.01)
+p <- seq(0, 1, 0.01)
+e <- outer(p, s, FUN=function(x, y) errorCEE(1, x, y))
+#persp(x = s, y = p, z = e)
+image(x = p, y = s, z = e)
+contour(x = p, y = s, z = e, nlevels = 10, add=TRUE)
+```
+
+We could also see this as a perspective plot in three dimensions.
+
+```{r fig.width=10, message=FALSE, warning=FALSE, paged.print=FALSE}
+s <- seq(0.5, 2, 0.01)
+p <- seq(0, 1, 0.01)
+e <- outer(p, s, FUN=function(x, y) errorCEE(1, x, y))
+#persp(x = s, y = p, z = e)
+persp(x = p, y = s, z = e, col = 'green')
+```
