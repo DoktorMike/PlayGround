@@ -40,3 +40,6 @@ e <- outer(p, s, FUN=function(x, y) errorCEE(1, x, y))
 #persp(x = s, y = p, z = e)
 persp(x = p, y = s, z = e, col = 'green')
 ```
+
+
+
