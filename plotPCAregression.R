@@ -27,6 +27,5 @@ mydf <- tibble(Flower=rnorm(100, 0, 10),
 # Plot data ---------------------------------------------------------------
 
 plotPCAComponent(mydf) + theme_minimal()
-
 plotPCAComponent(mydf, classes=mydf$Brand>50) + theme_minimal()
-
+plotPCAComponent(iris[,-5], iris$Species) + theme_minimal()
