@@ -41,9 +41,9 @@ sapply(1:10, function(x) score(nets[[x]], data=gaussian.test))
 
 # Iris test : Score function should be as high as possible
 data(iris)
-nets <- bn.boot(iris, statistic = function(x) x, algorithm="hc", R=5)
 nets <- bn.boot(iris, statistic = function(x) score(x, data=iris), algorithm="hc", R=5)
-myscores <- sapply(1:length(nets), function(x) score(nets[[x]], data=iris))
+nets <- bn.boot(iris, statistic = function(x) x, algorithm="hc", R=5)
+myscores <- sapply(1:length(nets), function(x) bnlearn::score(nets[[x]], data=iris))
 myorder <- order(myscores, decreasing=TRUE)
 par(mfrow = c(2, 3))
 graphviz.compare(nets[[myorder[1]]], nets[[myorder[2]]], nets[[myorder[3]]], nets[[myorder[4]]], nets[[myorder[5]]])
