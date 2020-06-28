@@ -15,3 +15,13 @@ function get_mnist_providers(batch_size::Int; data_name=:data, label_name=:softm
     return (train_provider, eval_provider)
 end
 
+[ i for i in 1:10]
+
+
+m(x) = 3*x
+
+for i in 1:10
+    echo
+
+
+

@@ -31,3 +31,5 @@ function loadalldata(files::Array)::Array{DataFrame}
     end
     alldata
 end
+
+

@@ -11,6 +11,8 @@ end
 # Anonymous
 f3 = x -> 2*x
 
+
+
 # Functor: This is the way flux operates with layers
 
 struct LinearReg{T}
@@ -26,4 +28,11 @@ function (lr::LinearReg)()
     lr.intercept
 end
 
+function (lr::LinearReg)()
+    a = 3
+    b = 5
+    if a >b
+        return 3
+    end
+end
 
