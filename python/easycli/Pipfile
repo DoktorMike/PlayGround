@@ -11,6 +11,7 @@ python-language-server = "*"
 pynvim = "*"
 black = "*"
 toml = "*"
+typer-cli = "*"
 
 [requires]
 python_version = "3.8"
