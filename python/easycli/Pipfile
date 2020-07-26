@@ -10,6 +10,7 @@ typer = "*"
 python-language-server = "*"
 pynvim = "*"
 black = "*"
+toml = "*"
 
 [requires]
 python_version = "3.8"
