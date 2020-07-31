@@ -1,0 +1,95 @@
+streamgraph            package:streamgraph             R Documentation
+
+_C_r_e_a_t_e _a _n_e_w _s_t_r_e_a_m_g_r_a_p_h
+
+_D_e_s_c_r_i_p_t_i_o_n:
+
+     ‘streamgraph()’ initializes the streamgraph html widget and takes
+     a data frame in "long" format with columns for the category (by
+     default, it looks for ‘key’) and its associated ‘date’ and
+     ‘value’. You can supply the names for those columns if they aren't
+     named as such in your data.
+     By default, interactivity is on, but you can disable that by
+     setting the ‘interactive’ parameter to ‘FALSE’.
+
+_U_s_a_g_e:
+
+     streamgraph(data, key, value, date, width = NULL, height = NULL,
+       offset = "silhouette", interpolate = "cardinal",
+       interactive = TRUE, scale = "date", top = 20, right = 40,
+       bottom = 30, left = 50, sort = TRUE, complete = TRUE,
+       order = c("compat", "asis", "inside-out", "reverse"))
+     
+_A_r_g_u_m_e_n_t_s:
+
+    data: data frame
+
+     key: bare or quoted name of the category column (defaults to
+          ‘key’)
+
+   value: bare or quoted name of the value column (defaults to ‘value’)
+
+    date: bare or quoted name of the date column (defaults to ‘date’)
+
+   width: Width in pixels (optional, defaults to automatic sizing)
+
+  height: Height in pixels (optional, defaults to automatic sizing)
+
+  offset: see d3's offset layout for more details. The default is
+          probably fine for most uses but can be one of ‘silhouette’
+          (default), ‘wiggle’, ‘expand’ or ‘zero’
+
+interpolate: see d3's area interpolation for more details. The default
+          is probably fine fore most uses, but can be one of ‘cardinal’
+          (default), ‘linear’, ‘step’, ‘step-before’, ‘step-after’,
+          ‘basis’, ‘basis-open’, ‘cardinal-open’, ‘monotone’
+
+interactive: set to ‘FALSE’ if you do not want an interactive
+          streamgraph
+
+   scale: axis scale (‘date’ [default] or ‘continuous’)
+
+     top: top margin (default should be fine, this allows for
+          fine-tuning plot space)
+
+   right: right margin (default should be fine, this allows for
+          fine-tuning plot space)
+
+  bottom: bottom margin (default should be fine, this allows for
+          fine-tuning plot space)
+
+    left: left margin (default should be fine, this allows for
+          fine-tuning plot space)
+
+    sort: experimental
+
+complete: experimental
+
+   order: streamgraph ribbon order. "`compat`" to match the orignial
+          package behavior, "`asis`" to use the input order,
+          "`inside-out`" to sort by index of maximum value, then use
+          balanced weighting, or "`reverse`" to reverse the input layer
+          order.
+
+_V_a_l_u_e:
+
+     streamgraph object
+
+_E_x_a_m_p_l_e_s:
+
+     ## Not run:
+     
+     library(dplyr)
+     library(streamgraph)
+     ggplot2movies::movies %>%
+     select(year, Action, Animation, Comedy, Drama, Documentary, Romance, Short) %>%
+       tidyr::gather(genre, value, -year) %>%
+       group_by(year, genre) %>%
+       tally(wt=value) %>%
+       ungroup %>%
+       mutate(year=as.Date(sprintf("%d-01-01", year))) -> dat
+     
+     streamgraph(dat, "genre", "n", "year")
+     ## End(Not run)
+     
+
