@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+    worker:
+        image: ubuntu
+        command: sleep infinity
+        volumes:
+          - type: volume
+            source: d2storage
+            target: /nfs
+            volume:
+                nocopy: true
+volumes:
+    d2storage:
+        driver: local
+        driver_opts:
+            type: nfs
+            o: nfsvers=4,addr=159.89.213.26,nolock,hard,rw
+            # The device must refer to the absolute path where the folder is on
+            # the NFS server
+            device: ":/mnt/volume-fra1-01/johan"
