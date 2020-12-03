@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flake8-black = "*"
+black = "*"
+pyls-black = "*"
+pycodestyle = "*"
+pynvim = "*"
+python-language-server = "*"
+ipython = "*"
+pyyaml = "*"
+torch = "*"
+torchvision = "*"
+opencv-python = "*"
+tqdm = "*"
+matplotlib = "*"
+scipy = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

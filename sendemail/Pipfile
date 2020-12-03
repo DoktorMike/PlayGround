@@ -8,6 +8,11 @@ verify_ssl = true
 [packages]
 pynvim = "*"
 black = "*"
+pyls-black = "*"
+python-language-server = "*"
+pycodestyle = "*"
+mccabe = "*"
+flake8-black = "*"
 
 [requires]
 python_version = "3.8"
