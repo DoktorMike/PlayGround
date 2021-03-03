@@ -1,0 +1,178 @@
+---
+title: "Bayesian Hypothesis Testing"
+author: "Michael Green"
+date: "`r Sys.Date()`"
+output: 
+  ioslides_presentation: 
+    css: styles.css
+    fig_caption: yes
+    keep_md: yes
+    logo: Dark-square.png
+    widescreen: yes
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(lubridate)
+library(datools)
+library(ggplot2)
+library(scales)
+library(shiny)
+library(brms)
+
+d2colors <- function(n) {
+    cols <- c(
+        rgb(29 / 255, 91 / 255, 137 / 255),
+        rgb(0 / 255, 159 / 255, 227 / 255),
+        rgb(127 / 255, 155 / 255, 170 / 255),
+        rgb(219 / 255, 224 / 255, 222 / 255),
+        rgb(200 / 255, 211 / 255, 0 / 255),
+        rgb(232 / 255, 51 / 255, 99 / 255),
+        rgb(50 / 255, 50 / 255, 50 / 255)
+    )
+    cols[1:n]
+}
+
+```
+
+## Houston we have a problem
+
+- Frequentist hypothesis testing is fundamentally flawed and can and should be
+  replaced with better tools
+- In this short presentation we will run through the Bayesian take on hypothesis
+  testing and see how easy it is to use
+
+### Disclaimer
+
+The data in this presentation is fake and meant to prove a point! This data is
+not coming from any real study, but instead generated using the procedure
+outlined in the coming sections
+
+## Generate some fake IQ data
+
+<div style="float: left; width: 50%;">
+```{r datagen, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+iqdf <- tibble(
+    Male = rbinom(10, 200, 0.5),
+    Female = rbinom(10, 200, 0.5)
+)
+iqdfl <- iqdf %>%
+    pivot_longer(
+        cols = c(Male, Female),
+        names_to = "Group",
+        values_to = "IQ"
+    ) %>%
+    mutate(Group = as.factor(Group))
+```
+```{r dataload, echo=FALSE}
+load("data.RData")
+table(iqdfl)
+```
+
+</div>
+
+<div style="float: right; width: 50%;">
+```{r rawdataplot, echo=FALSE, fig.width=5, fig.height=4, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+iqdfl %>% ggplot(aes(x = IQ, fill = Group)) +
+    geom_density(alpha = 0.5) +
+    theme_minimal()
+
+```
+</div>
+
+
+## A Simple Frequentist T-test {.smaller}
+
+```{r fttest, echo=TRUE}
+
+res <- t.test(iqdf$Male, iqdf$Female)
+tidyres <- res %>% broom::tidy()
+tidyres %>% knitr::kable()
+```
+
+- The conclusion here would be to reject the NULL hypothesis of no difference
+  since we have a pvalue of around `r round(res$p.value, 3)`.
+- Naturally this conclusion would be incorrect which any human can see by
+  looking at the data
+- Can we do better?
+
+## A Simple Bayesian Robust T-test {.smaller}
+```{r ttest, echo=TRUE}
+
+mod_robust <- brm(
+    bf(IQ ~ Group, sigma ~ Group),
+    family = student,
+    data = iqdfl,
+    cores = 4,
+    file = "robustttest"
+)
+hyp <- hypothesis(mod_robust, hypothesis = "GroupMale>0")
+hyp$hypothesis
+
+```
+
+- Running a Bayesian counterpart allows us to model the location and scale of
+  both groups
+- However, as you can see our analysis now says that the posterior probability
+  of GroupMale > 0 is `r hyp$hypothesis$Post.Prob` which is still suffering from
+  the low sample size and unfortunate outlier samples
+- Can we do better? Yes of course, we can make a real scientific assumption!
+
+
+## An Informed Bayesian Robust T-test {.smaller}
+```{r bttest, echo=TRUE}
+
+mod_robust2 <- brm(
+    bf(IQ ~ Group, sigma ~ Group),
+    family = student,
+    prior = prior(normal(0, 1), coef="GroupMale"),
+    data = iqdfl,
+    cores = 4,
+    file = "robustttest2",
+    sample_prior = "yes"
+)
+hyp <- hypothesis(mod_robust2, hypothesis = "GroupMale>0")
+hyp$hypothesis
+
+```
+
+- Now let's say that we don't believe there to be a difference and in fact we
+  believe that it's possible that men can have on average a couple of IQ points
+  more or less than Females
+- Thus we say $β_{GroupMale}∼N(0, 1)$
+- This time we see that the posterior probability of GroupMale > 0 is
+  only `r hyp$hypothesis$Post.Prob` which is better
+
+
+## Why is this better? {.smaller}
+
+<div style="float: left; width: 50%;">
+- For starters we could actually postulate a scientific assumption and make it
+  explicit in the model
+- Second, we can check our assumption against the posterior distribution
+- In this case it's easy to see that the data barely moved our assumtion that
+  Male do not have more or less intelligence than Females
+- Note: The light blueish color is our assumption and the darkish is the data driven
+  posterior
+- Thus, with these assumptions and data observations there's a `r scales::percent(1-hyp$hypothesis$Post.Prob)` chance of Females having an IQ advantage over Males and a `r scales::percent(hyp$hypothesis$Post.Prob)` probability of Males having an advantage
+</div>
+<div style="float: right; width: 50%;">
+```{r priorvspost, echo=FALSE, fig.width=5, fig.height=5, message=FALSE, warning=FALSE, paged.print=FALSE}
+plot(hyp, theme=theme_minimal())
+```
+</div>
+
+## Summary
+
+- As you have seen a classical frequentist t.test is really sensitive towards
+  outliers and leads to the wrong conclusion where the NULL hypothesis is
+  rejected on a 95% confidence interval
+- A Bayesian robust t-test allows you to make the assumptions your testing clear
+  and the results clearly indicate that we can clearly not reject the NULL
+  hypothesis of Male and Females having equal levels of IQ
