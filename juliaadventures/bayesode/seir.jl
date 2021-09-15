@@ -1,7 +1,7 @@
 using DifferentialEquations
 using Plots
 using DataFrames
-#using HDF5
+# using HDF5
 using Turing
 
 
@@ -20,13 +20,13 @@ function seir_ode(dY, Y, p, t)
     dY[3] = σ * E - (γ + μ) * I
 end;
 
-function seir(β, σ, γ, μ, tspan = (0.0, 100.0); S₀ = 0.99, E₀ = 0, I₀ = 0.01, R₀ = 0)
+function seir(β, σ, γ, μ, tspan=(0.0, 100.0); S₀=0.99, E₀=0, I₀=0.01, R₀=0)
     par = [β, σ, γ, μ]
     init = [S₀, E₀, I₀]
     seir_prob = ODEProblem(seir_ode, init, tspan, par)
     sol = solve(seir_prob)
-    R = ones(1, size(sol)[2]) - sum(sol, dims = 1)
-    #plot(sol.t,[sol',R'],xlabel="Time",ylabel="Proportion")
+    R = ones(1, size(sol)[2]) - sum(sol, dims=1)
+    # plot(sol.t,[sol',R'],xlabel="Time",ylabel="Proportion")
     hcat(sol.t, sol[1, :], sol[2, :], sol[3, :], R')
 end;
 
@@ -39,18 +39,18 @@ res = seir(
     1 / 7,
     6e4 / (5.8e6 * 365),
     (0.0, 150.0),
-    S₀ = 1 - 1.7e-7,
-    E₀ = 0.0,
-    I₀ = 1.7e-7,
+    S₀=1 - 1.7e-7,
+    E₀=0.0,
+    I₀=1.7e-7,
 )
 plot(
     res[:, 1],
     res[:, 2:5],
-    lab = ["Susceptible" "Exposed" "Infected" "Recovered"],
-    xlabel = "Time",
-    ylabel = "Proportion",
+    lab=["Susceptible" "Exposed" "Infected" "Recovered"],
+    xlabel="Time",
+    ylabel="Proportion",
 )
-vline!([24], lab = "Today")
+vline!([24], lab="Today")
 r0(0.08 * 10, 1 / 3, 1 / 7, 6e4 / (5.8e6 * 365))
 resdf = hcat(res[:, 1], res[:, 2:5] * 5.8e6) |> DataFrame
 names!(resdf, [:Day, :Susceptible, :Exposed, :Infected, :Recovered])
@@ -93,19 +93,27 @@ function seirode(dy, y, p, t)
     N = 5.8e6
     Λ, β, σ, γ, μ = p
     S, E, I = y
-    dy[1] = Λ * N - μ * S - (β * I * S) / N
-    dy[2] = (β * I * S) / N - (μ + σ) * E
-    dy[3] = σ * E - (γ + μ) * I
+    if t < 75
+        ν = 1.1 # Controls β for social distancing at time t
+        dy[1] = Λ * N - μ * S - (ν*β * I * S) / N
+        dy[2] = (ν*β * I * S) / N - (μ + σ) * E
+        dy[3] = σ * E - (γ + μ) * I
+    else
+        ν = 0.3
+        dy[1] = Λ * N - μ * S - (ν*β * I * S) / N
+        dy[2] = (ν*β * I * S) / N - (μ + σ) * E
+        dy[3] = σ * E - (γ + μ) * I
+    end
 end
 
-par = [6e4 / (5.8e6 * 365), 0.019 * 10, 1 / 3, 1 / 7, 6e4 / (5.8e6 * 365)]
-init = [5.8e6, 0.0, 1.0]
+par = [6e4 / (5.8e6 * 365), 0.020 * 13, 1 / 3, 1 / 7, 6e4 / (5.8e6 * 365)]
+init = [5.8e6, 10.0, 1.0]
 tspan = (0.0, 381.0)
 seir_prob = ODEProblem(seirode, init, tspan, par)
-sol = solve(seir_prob, Tsit5(), saveat = 1.0)
-#p1 = plot(sol)
+sol = solve(seir_prob, Tsit5(), saveat=1.0)
+# p1 = plot(sol)
 p1 = scatter(sol.t, [ sol.u[i][3] for i in 1:length(sol.t)])
-scatter!(p1, 1:length(data.Date), data.Active)
+scatter!(p1, 1:length(data.Date), data.Active, xlim=[0,100], ylim=[0,10000])
 
 # SEIR model where R is not modeled since N = S+E+I+R is a constant
 # In this implementation we set N=1
@@ -127,46 +135,46 @@ Turing.setadbackend(:forwarddiff)
 
 @model function fitseir(data, prob)
     σ2 ~ InverseGamma(2, 3)
-    β ~ Normal(0.012 * 10, 0.006 * 10)
-    #σ ~ Normal(1 / 3, 1 / 10)
-    #γ ~ Normal(1 / 7, 1 / 20)
-    #μ ~ Normal(6e4 / (5.8e6 * 365), 1e-6)
-    #β = 0.07*10 
-    σ = 1/2
-    γ = 1/14
+    #β ~ Normal(0.012 * 10, 0.006 * 10)
+    # σ ~ Normal(1 / 3, 1 / 10)
+    # γ ~ Normal(1 / 7, 1 / 20)
+    # μ ~ Normal(6e4 / (5.8e6 * 365), 1e-6)
+    β = 0.07*10 
+    σ = 1 / 2
+    γ = 1 / 14
     μ = 6e4 / (5.8e6 * 365)
     p = [β, σ, γ, μ]
-    rprob = remake(prob, p = p)
-    predicted = solve(rprob, Tsit5(), saveat = 1.0)
+    rprob = remake(prob, p=p)
+    predicted = solve(rprob, Tsit5(), saveat=1.0)
     for i = 1:length(predicted)
         data[i] ~ Normal(predicted[i][3], σ2)
     end
 end
 
-#par = [0.012 * 10, 1 / 2, 1 / 14, 6e4 / (5.8e6 * 365)]
+# par = [0.012 * 10, 1 / 2, 1 / 14, 6e4 / (5.8e6 * 365)]
 par = [0.12, 1 / 2, 1 / 14, 6e4 / (5.8e6 * 365)]
 init = [1 - 1.7e-7, 0.0, 1.7e-7]
 tspan = (0.0, 457.0)
 seir_prob = ODEProblem(seir_ode, init, tspan, par)
-sol = solve(seir_prob, Tsit5(), saveat = 1.0)
-pl = scatter(sol.t, Array(data.Active)/5.8e6, ylim=[0,0.01])
-plot!(pl, sol, w=2, legend=false)
+sol = solve(seir_prob, Tsit5(), saveat=1.0)
+pl = scatter(sol.t, Array(data.Active) / 5.8e6, ylim=[0,0.01])
+plot!(pl, sol, w=2, legend=true)
 
-model = fitseir(Array(data.Active)/5.8e6, seir_prob)
+model = fitseir(Array(data.Active) / 5.8e6, seir_prob)
 chain = sample(model, NUTS(0.65), MCMCThreads(), 1000, 4)
 
 plot(chain)
 
 # Plot the data we have
-pl = scatter(sol.t, Array(data.Active)/5.8e6, ylim=[0, 0.01])
-#pl = scatter(sol.t, Array(data.Active)/5.8e6)
+#pl = scatter(sol.t, Array(data.Active) / 5.8e6, ylim=[0, 0.01])
+pl = scatter(sol.t, Array(data.Active)/5.8e6)
 chainarray = Array(chain)
 for k in 1:300
-    p = [chainarray[rand(1:4000), 1], 1/2, 1/14, 6e4/(5.8e6 * 365)]
-    #p = [rand(Normal(0.7, 0.01)), 1/3, 1/7, 6e4/(5.8e6 * 365)]
+    local p = [chainarray[rand(1:4000), 1], 1 / 2, 1 / 14, 6e4 / (5.8e6 * 365)]
+    # p = [rand(Normal(0.7, 0.01)), 1/3, 1/7, 6e4/(5.8e6 * 365)]
     resol = solve(remake(seir_prob, p=p), Tsit5(), saveat=1.0)
-    plot!(resol, alpha=0.1, color="#BBBBBB", legend=false)
+    plot!(pl, resol, alpha=0.1, color="#BBBBBB", legend=false)
 end
-plot!(sol, w=1, legend=false)
+#plot!(sol, w=1, legend=false)
 
 
