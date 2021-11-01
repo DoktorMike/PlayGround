@@ -1,3 +1,4 @@
+library(gridExtra)
 
 money <- 10000
 n <- 10
@@ -34,6 +35,13 @@ play(10000, 100, debug = FALSE)
 
 # Play 50000 games
 adf <- data.frame(t(sapply(1:10000, function(x) play(cash = 10000, bet_money = 100, take_profit = 1.5*10000, debug = FALSE))))
+sum(adf$Win)/nrow(adf)
+mean(adf$Rounds)
+qplot(adf$Cash)
+qplot(adf$LastBet)
+
+# Play 50000 games
+adf <- data.frame(t(sapply(1:10000, function(x) play(cash = 10000, bet_money = 50, take_profit = 1.5*10000, debug = FALSE))))
 sum(adf$Win)/nrow(adf)
 mean(adf$Rounds)
 qplot(adf$Cash)
