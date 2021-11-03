@@ -74,6 +74,33 @@ println(simplify(eqn))
 #
 
 
+## Push to pull ES
+
+using SymbolicRegression
+using SymbolicUtils
+using CSV
+using DataFrames
+
+data = CSV.File("data/p2pspaintiedagents.csv") |> DataFrame
+X = data[:, [:CommissionsPureCommission, :BrandPC, :MediaOffline, :MediaOnline, :Price, :Covid, :Cars, :GTrends, :Unemp]]
+X = Float32.(Matrix(X)')
+y = Float32.(data[:, :PoliciesNew])
+
+options = SymbolicRegression.Options(
+    binary_operators=(+, *, /, -),
+    unary_operators=(tanh, exp, log),
+    npopulations=20
+)
+
+hallOfFame = EquationSearch(X, y, niterations=10, options=options)
+
+dominating = calculateParetoFrontier(X, y, hallOfFame, options)
+
+eqn = node_to_symbolic(dominating[end].tree, options)
+
+println(simplify(eqn))
+
+
 # AIFeynman example
 using SymbolicRegression
 using SymbolicUtils
