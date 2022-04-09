@@ -1,0 +1,5 @@
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFramesMeta = "1313f7d8-7da2-5740-9ea0-a2ca25f37964"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
