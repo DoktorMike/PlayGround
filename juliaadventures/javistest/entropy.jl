@@ -30,8 +30,15 @@ render(myvideo; pathname="circle2.gif")
 
 
 # entropy
+
+function updatedirection!(ball)
+  ball.pos = Point(-ball.pos.x, ball.pos.y)
+  ball
+end
+
 myvideo = Video(500, 500)
 Background(1:70, ground)
-redball = Object(1:70, (args...) -> object(O, "red"), Point(100, 0))
+redball = Object(1:70, (args...) -> object(O, "red"), Point(-250, -250))
+Object(1:70, (args...) -> updatedirection!(redball))
 act!(redball, Action(anim_translate(300, 300)))
 render(myvideo; pathname="entropy.gif")
