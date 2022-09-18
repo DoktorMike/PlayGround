@@ -39,6 +39,11 @@ end
 myvideo = Video(500, 500)
 Background(1:70, ground)
 redball = Object(1:70, (args...) -> object(O, "red"), Point(-250, -250))
+for f in 1:70
+  act!(redball, Action(f, anim_translate(10,10)))
+end
+
 Object(1:70, (args...) -> updatedirection!(redball))
-act!(redball, Action(anim_translate(300, 300)))
+act!(redball, Action(anim_translate(500, 500)))
+
 render(myvideo; pathname="entropy.gif")
