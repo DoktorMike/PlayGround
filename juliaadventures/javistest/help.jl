@@ -4,13 +4,24 @@ video = Video(500, 500)
 nframes = 250
 Background(1:nframes, (v, o, f) -> background("black"))
 
+const ballsize = 25
+
+# Infobox
+function info_box(video, object, frame)
+    sethue("white")
+    fontsize(12)
+    box(140, -210, 170, 40, :stroke)
+    text("10-20 EEG Array Readings", 140, -220, valign = :middle, halign = :center)
+    text("t = $(frame)s", 140, -200, valign = :middle, halign = :center)
+end
+
 # Create all the balls
 randvelocity() = (floor(Int64, randn() * 10), floor(Int64, randn() * 5))
 
 function createobj(color="red")
   obj = Object(1:nframes, (v, o, f) -> begin
     sethue(color)
-    circle(O, 25, :fill)
+    circle(O, ballsize, :fill)
     return O
   end)
   obj.opts[:velocity] = randvelocity()
@@ -24,11 +35,12 @@ objs = [createobj(colors[i]) for i in 1:length(colors)]
 updaterobj = Object(1:nframes, (v, o, f) -> begin
   #hardcoded boundaries of the video
   function updateone(obj)
-    if !(-250 + 12 < pos(obj).x < 250 - 12)
+    radius = floor(ballsize / 2)
+    if !(-250 + radius < pos(obj).x < 250 - radius)
       v = obj.opts[:velocity]
       obj.opts[:velocity] = (-v[1], v[2])
     end
-    if !(-250 + 12 < pos(obj).y < 250 - 12)
+    if !(-250 + radius < pos(obj).y < 250 - radius)
       v = obj.opts[:velocity]
       obj.opts[:velocity] = (v[1], -v[2])
     end
@@ -49,5 +61,8 @@ for i in 1:length(objs)
   act!(objs[i], Action(1:nframes, move()))
 end
 
-render(video, pathname="vid.mp4")
+info = Object(info_box)
+
+#render(video, pathname="vid.mp4")
+render(video; pathname="vid.gif")
 #run(`mpv vid.mp4`)
