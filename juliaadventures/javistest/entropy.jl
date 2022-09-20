@@ -6,7 +6,8 @@ Background(1:nframes, (v, o, f) -> background("black"))
 
 const kb = 1.380649e-23
 const ballsize = 25
-const colors = ("red", "green", "blue", "pink", "orange", "yellow")
+const colors = ("red", "green", "blue", "pink", "orange", "yellow", "brown", "purple", "teal")
+#const colors = ("red", "green", "blue")
 
 entropy(n, k) = log(binomial(n, k))
 
@@ -80,5 +81,5 @@ info = Object(info_box)
 vertline = Object(vline)
 
 #render(video, pathname="vid.mp4")
-render(video; pathname="vid.gif")
+render(video; pathname="entropy.gif")
 #run(`mpv vid.mp4`)
