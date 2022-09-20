@@ -1,49 +1,84 @@
 using Javis
 
-function ground(args...)
-  background("white")
-  sethue("black")
+video = Video(500, 500)
+nframes = 250
+Background(1:nframes, (v, o, f) -> background("black"))
+
+const kb = 1.380649e-23
+const ballsize = 25
+const colors = ("red", "green", "blue", "pink", "orange", "yellow")
+
+entropy(n, k) = log(binomial(n, k))
+
+function numright()
+  sum([pos(obj).x > 0 for obj in objs])
 end
 
-function object(p=O, color="black")
-  sethue(color)
-  circle(p, 25, :fill)
-  return p
+# Infobox
+function info_box(video, object, frame)
+  sethue("white")
+  fontsize(12)
+  box(140, -210, 170, 40, :stroke)
+  text("Statistics:", 140, -220, valign=:middle, halign=:center)
+  nr = numright()
+  text("t = $(frame)s Right: $(nr)", 140, -200, valign=:middle, halign=:center)
+  text("Entropy: $(round(entropy(length(colors), nr); digits=2))", 140, -180, valign=:middle, halign=:center)
 end
 
-
-myvideo = Video(500, 500)
-Background(1:70, ground)
-red_ball = Object(1:70, (args...) -> object(O, "red"), Point(100, 0))
-blue_ball = Object(1:70, (args...) -> object(O, "blue"), Point(100, 100))
-
-render(myvideo; pathname="circle.gif")
-
-# Exercise 2
-myvideo = Video(500, 500)
-
-Background(1:70, ground)
-red_ball = Object(1:70, (args...) -> object(O, "red"), Point(100, 0))
-act!(red_ball, Action(anim_rotate_around(2π, O)))
-
-render(myvideo; pathname="circle2.gif")
-
-
-# entropy
-
-function updatedirection!(ball)
-  ball.pos = Point(-ball.pos.x, ball.pos.y)
-  ball
+# Vertical line
+function vline(video, object, frame)
+  sethue("white")
+  line(Point(0, -250), Point(0, 250), :stroke)
 end
 
-myvideo = Video(500, 500)
-Background(1:70, ground)
-redball = Object(1:70, (args...) -> object(O, "red"), Point(-250, -250))
-for f in 1:70
-  act!(redball, Action(f, anim_translate(10,10)))
+# Create all the balls
+randvelocity() = (floor(Int64, randn() * 10), floor(Int64, randn() * 5))
+
+function createobj(color="red")
+  obj = Object(1:nframes, (v, o, f) -> begin
+    sethue(color)
+    circle(O, ballsize, :fill)
+    return O
+  end)
+  obj.opts[:velocity] = randvelocity()
+  obj
+end
+objs = [createobj(colors[i]) for i in 1:length(colors)]
+
+#not really an obj , as in draws nothing , but runs a function
+# Logic for updating the velocity based on wall collissions
+updaterobj = Object(1:nframes, (v, o, f) -> begin
+  #hardcoded boundaries of the video
+  function updateone(obj)
+    radius = floor(ballsize / 2)
+    if !(-250 + radius < pos(obj).x < 250 - radius)
+      v = obj.opts[:velocity]
+      obj.opts[:velocity] = (-v[1], v[2])
+    end
+    if !(-250 + radius < pos(obj).y < 250 - radius)
+      v = obj.opts[:velocity]
+      obj.opts[:velocity] = (v[1], -v[2])
+    end
+  end
+  updateone.(objs)
+end)
+
+# Update each balls position based on their velocity
+move() = (v, o, a, f) -> begin
+  if f == first(Javis.get_frames(a))
+    translate(o.start_pos + o.opts[:velocity])
+  else
+    translate(get_position(o) + o.opts[:velocity])
+  end
 end
 
-Object(1:70, (args...) -> updatedirection!(redball))
-act!(redball, Action(anim_translate(500, 500)))
+for i in 1:length(objs)
+  act!(objs[i], Action(1:nframes, move()))
+end
 
-render(myvideo; pathname="entropy.gif")
+info = Object(info_box)
+vertline = Object(vline)
+
+#render(video, pathname="vid.mp4")
+render(video; pathname="vid.gif")
+#run(`mpv vid.mp4`)
