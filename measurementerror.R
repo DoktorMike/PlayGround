@@ -5,7 +5,7 @@ library(tibble)
 # MORE FUN!
 N <- 100
 ts <- seq(0.1, 10, 0.1)
-dat <- tibble(x1 = sin(ts) + rnorm(N, 0, 0.5), y = 1 + 2 * sin(ts) + rnorm(N, 0, 0.5))
+dat <- tibble(x1 = sin(ts) + rnorm(N, 0, 0.5), y = 1 + 2 * sin(ts) + rnorm(N, 0, 0.1))
 dat %>% ggplot(aes(x = ts, y = y)) +
   geom_point() +
   geom_smooth(formula = y ~ sin(x))
