@@ -49,3 +49,5 @@ p3 <- mydf |> ggplot(aes(x = x, y = y)) +
   theme(axis.text.y = element_blank()) +
   ggtitle("Perfect")
 p1 + p2 + p3
+
+ggsave("overunderfit.png")
