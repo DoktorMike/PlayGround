@@ -17,70 +17,29 @@ source("invest.r")
 
 ## Introduction
 
-With any investment, there is often a need to measure the impact it has. More
-often than not, the most important way to measure that impact is through Return
-on Investment (ROI). For CX investments, whose primary output is typically
-measured in Net Promoter Score (NPS) this presents a challenge. How much
-revenue does one percentage point in added NPS generate? Without a clear answer
-to this question, we are left with guesswork which is hard to use in your
-yearly budget negotiations with your CFO.
+With any investment, there is often a need to measure the impact it has. More often than not, the most important way to measure that impact is through Return on Investment (ROI). For CX investments, whose primary output is typically measured in Net Promoter Score (NPS) this presents a challenge. How much revenue does one percentage point in added NPS generate? Without a clear answer to this question, we are left with guesswork which is hard to use in your yearly budget negotiations with your CFO.
 
 ## Reason 1: You are not causally linking your investments to NPS
 
-While there are many metrics to measure CX, NPS remains a top contender for
-many businesses. Therefore, it's natural and necessary to link your investments
-in CX to the outcome in NPS. Did your latest investment into improving some of
-your customer journeys change NPS afterwards? How long did it take? What was
-the cost per percentage point increase in NPS?
+While there are many metrics to measure CX, NPS remains a top contender for many businesses. Therefore, it's natural and necessary to link your investments in CX to the outcome in NPS. Did your latest investment into improving some of your customer journeys change NPS afterward? How long did it take? What was the cost per percentage point increase in NPS?
 
-To answer these questions you need a causal model that is capable of linking
-historical CX investments to future NPS outcomes. While it might be tempting to
-use a Marketing Mix Model (MMM) to measure this. It comes with a lot of issues.
-First off MMMs are based on multiple linear regression which can be good to
-measure targets that can assume any value at all. This is problematic in this
-case since NPS is a measure that can only vary between -100 and +100. As such
-it is important to include the proper inductive bias in your model to do this.
-To learn more about how Holistic Business Measurement and Optimization is
-changing the game here have a look at our previous
-[post](https://blog.desupervised.io/holistic_business_modeling_supersedes_business_science_models)
-about this.
+To answer these questions you need a causal model that is capable of linking historical CX investments to future NPS outcomes. While it might be tempting to use a Marketing Mix Model (MMM) to measure this. It comes with a lot of issues. First off MMMs are based on multiple linear regression which can be good to measure targets that can assume any value at all. This is problematic in this case since NPS is a measure that can only vary between -100 and +100. As such it is important to include the proper inductive bias in your model to do this. To learn more about how Holistic Business Measurement and Optimization is changing the game here have a look at our previous [post](https://blog.desupervised.io/holistic_business_modeling_supersedes_business_science_models) about this.
 
-Once you are armed with a model that can continuously link your CX investments
-to your NPS score, you are in a position to measure and prove the effect those
-investments have.
+Once you are armed with a model that can continuously link your CX investments to your NPS score, you are in a position to measure and prove the effect those investments have.
 
 ## Reason 2: You are not measuring the effect NPS has on your revenue 
 
-As we saw in the last section measuring how your CX investments are affecting
-your NPS score is key. However, it's often not enough to prove business value.
-The best way to prove business value is to link NPS to tangible outcomes like
-sales, revenue and profit. This is naturally challenging since how do you know
-that it was due to an increase in NPS that your sales increased or your churn
-got reduced. This is especially true since an increase in NPS most likely won't
-show up in your sales immediately. There's a delay, and capturing this delay is
-the most important part of being able to link NPS to the lift in sales and
-revenue. These delays are rather different from business to business and that's
-why generic advice and rules of thumb are not going to cut it. Machine learning
-on the other hand is especially well suited to capture these time delays and
-what they exactly look like for your specific business and customers.
+As we saw in the last section measuring how your CX investments are affecting your NPS score is key. However, it's often not enough to prove business value. The best way to prove business value is to link NPS to tangible outcomes like sales, revenue and profit. This is naturally challenging since how do you know that it was due to an increase in NPS that your sales increased or your churn was reduced. This is especially true since an increase in NPS most likely won't show up in your sales immediately. There's a delay, and capturing this delay is the most important part of being able to link NPS to the lift in sales and revenue. These delays are rather different from business to business and that's why generic advice and rules of thumb are not going to cut it. Machine learning on the other hand is especially well suited to capture these time delays and what they exactly look like for your specific business and customers.
 
-Now with the model that can measure your CX investments effect on NPS we can
-extend it with ability to also capture the lagged effects on your revenue. This
-allows us to track the causal flow from investment, through NPS and finally to
-revenue. Thus, you will be able to calculate the true ROI as
+Now with the model that can measure your CX investment's effect on NPS, we can extend it with the ability to also capture the lagged effects on your revenue. This allows us to track the causal flow from investment, through NPS and finally to revenue. Thus, you will be able to calculate the true ROI as
 
 $$ROI = \frac{\text{Revenue generated}}{\text{CX Investment}}$$ 
 
-which is the ultimate measure of how profitable your CX investment really is.
+which is the ultimate measure of how profitable your CX investment is.
 
 ## Reason 3: You are not experimenting enough
 
-All investments require some degree of experimentation to figure out how the
-market responds to your activities. This can be a bit of a roller coaster
-without the proper strategic plan in place. Imagine the following scenario. You
-have measured the effect of your CX investments on NPS and even been able to
-link it to revenue generated, but the ROI's have been disappointing. Below the
-nine individual CX investments are highlighted along with their ROI.
+All investments require some degree of experimentation to figure out how the market responds to your activities. This can be a bit of a roller coaster without the proper strategic plan in place. Imagine the following scenario. You have measured the effect of your CX investments on NPS and even been able to link it to revenue generated, but the ROI's have been disappointing. Below the nine individual CX investments are highlighted along with their ROI.
 
 ```{r}
 #| label: fig-beginroi
@@ -107,10 +66,7 @@ smalldf %>%
 
 ```
 
-It would be fair to say that these ROI's are modest at best and it seems as
-though this is not really profitable. However, these investments are also
-correspondingly modest, and if we change our perspective a bit we can see an
-emerging pattern.
+It would be fair to say that these ROIs are modest at best and it seems as though this is not really profitable. However, these investments are also correspondingly modest, and if we change our perspective a bit we can see an emerging pattern.
 
 ```{r}
 #| label: fig-beginroi2
@@ -136,40 +92,20 @@ ggplot(aes(x = Investment, y = ROI)) +
 
 ```
 
-From this view, it should be clear that there appears to be a causal
-relationship between the size of your CX investment and the ROI. So the more
-you invest the more customers you seem to affect. This is good news since that
-means that there is a lot more to gain from increasing your current CX
-investment. You get more per invested dollar the more you invest. In
-mathematics, this is known as a convex function. These functions are quite
-common in the early stages of investments and will eventually lead to an
-inflection point where you start to get less per extra invested dollar.
+From this view, it should be clear that there appears to be a causal relationship between the size of your CX investment and the ROI. So the more you invest the more customers you seem to affect. This is good news since that means that there is a lot more to gain from increasing your current CX investment. You get more per invested dollar the more you invest. In mathematics, this is known as a convex function. These functions are quite common in the early stages of investments and will eventually lead to an inflection point where you start to get less per extra invested dollar.
 
-This is why it is crucial to use your machine learning model to map out where
-on this ROI curve you are. When you know where you are and the general shape of
-the curve you can optimize your future investments.
+This is why it is crucial to use your machine learning model to map out where on this ROI curve you are. When you know where you are and the general shape of the curve you can optimize your future investments.
 
 ## Using Business Science to Optimize Your CX Investments
 
-We have gone through three common problems occurring when you need to measure
-and prove the effect your CX investments have on hard KPIs like sales, revenue
-and churn. Business Science, and especially Holistic Business Measurement and
-Optimization, models are useful to identify, measure, plan and optimize the
-effect of your investments. That's all well and good but how do we do this in
-practice? Well, you need to implement a four-stage plan.
+We have gone through three common problems occurring when you need to measure and prove the effect your CX investments have on hard KPIs like sales, revenue and churn. Business Science, and especially Holistic Business Measurement and Optimization, models are useful to identify, measure, plan and optimize the effect of your investments. That's all well and good but how do we do this in practice? Well, you need to implement a four-stage plan.
 
 1. Set up a continuous and centralized data collection process.
-2. Build a model that can measure the effect your CX investments have on NPS
-   and link it to revenue.
-3. Using the insights from the model plan a set of experiments to identify
-   where you are on your ROI curve.
-4. Set up a test-and-learn strategy where you continuously use the new data
-   collected from the experiments to update your model and plan new experiments
-   with the updated model.
+2. Build a model that can measure the effect your CX investments have on NPS and link it to revenue.
+3. Using the insights from the model plan a set of experiments to identify where you are on your ROI curve.
+4. Set up a test-and-learn strategy where you continuously use the new data collected from the experiments to update your model and plan new experiments with the updated model.
 
-With this plan in motion you can map out the entire ROI curve for your CX
-investment and in our example, you would have found the following after careful
-experimentation.
+With this plan in motion you can map out the entire ROI curve for your CX investment and in our example, you would have found the following after careful experimentation.
 
 ```{r}
 #| label: fig-mainroi-single
@@ -194,26 +130,9 @@ ggplot(aes(x = Investment, y = ROI)) +
 
 ```
 
-I have highlighted the area where the initial low ROI investments were made in
-our previous section. As you can see we were only at the beginning of the
-growth curve and the low ROIs were due to us not realizing the exponential
-growth approaching. The machine learning model helped us uncover the curve and
-where we should go. 
+I have highlighted the area where the initial low ROI investments were made in our previous section. As you can see we were only at the beginning of the growth curve and the low ROIs were due to us not realizing the exponential growth approaching. The machine learning model helped us uncover the curve and where we should go. 
 
-While it's tempting to reach the maximum ROI this is often not what you want as
-you would be missing out on profit. To see this we need to complement our
-picture with another curve to show us what the ROI is for one additional dollar
-invested at every stage. This metric is called marginal ROI and is denoted
-`mROI` in the illustration below. Before diving into the graph it's worth
-putting a few words on what marginal ROI is. It is the ROI of the "last"
-invested dollar. As an example, say you have invested `r scales::dollar(1000)`.
-Marginal ROI tells you how much extra profit you got from investing
-`r scales::dollar(1001)` dollars instead of `r scales::dollar(1000)`.
-Therefore, the optimal investment level will always be at a marginal ROI of 1
-meaning that on the last invested dollar you got one dollar back. No extra
-investments can be made profitably in this particular activity at this
-particular time. The optimal investment level is indicated by the black
-vertical line below which coincides with the `mROI` curve passing through 1.
+While it's tempting to reach the maximum ROI this is often not what you want as you would be missing out on profit. To see this we need to complement our picture with another curve to show us what the ROI is for one additional dollar invested at every stage. This metric is called marginal ROI and is denoted `mROI` in the illustration below. Before diving into the graph it's worth putting a few words on what marginal ROI is. It is the ROI of the "last" invested dollar. As an example, say you have invested `r scales::dollar(1000)`. Marginal ROI tells you how much extra profit you got from investing `r scales::dollar(1001)` dollars instead of `r scales::dollar(1000)`. Therefore, the optimal investment level will always be at a marginal ROI of 1 meaning that on the last invested dollar you got one dollar back. No extra investments can be made profitably in this particular activity at this particular time. The optimal investment level is indicated by the black vertical line below which coincides with the `mROI` curve passing through 1.
 
 ```{r}
 #| label: fig-mainandmarginal
@@ -266,19 +185,11 @@ mydf %>%
     scale_fill_nord("frost")
 ```
 
-The graph may look a bit heavy but it's an incredibly useful tool to have to
-guide your CX investments in future activities. These insights can be viewed as
-a whole for your entire yearly CX investment to guide your yearly budget
-negotiations, but can also be viewed on a more tactical level for a specific CX
-activity.
+The graph may look a bit heavy but it's an incredibly useful tool to have to guide your CX investments in future activities. These insights can be viewed as a whole for your entire yearly CX investment to guide your yearly budget negotiations, but can also be viewed on a more tactical level for a specific CX activity.
 
 ## Conclusion
 
-I hope I have convinced you that taking the step into using machine learning to
-identify, measure and optimize the effect your CX investments have on revenue
-is a natural next step in your data-driven decision-making journey. I also hope
-that I've been able to show you how a simple graph can be a powerful tool in
-your strategic and tactical work within CX.
+I hope I have convinced you that taking the step into using machine learning to identify, measure and optimize the effect your CX investments have on revenue is a natural next step in your data-driven decision-making journey. I also hope that I've been able to show you how a simple graph can be a powerful tool in your strategic and tactical work within CX.
 
 While implementing this, remember to avoid the 3 pitfalls by doing the following:
 
