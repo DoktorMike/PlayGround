@@ -28,4 +28,3 @@ mydf <- tibble(
     ROI = myroi(Investment),
     mROI = mymroi(Investment)
 ) %>% dplyr::mutate(Optimal = abs(c(0, diff(mROI > 1))))
-
