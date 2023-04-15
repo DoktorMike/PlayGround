@@ -47,7 +47,7 @@ class Complete(object):
         return data
 
 
-path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', 'QM9')
+path = osp.join('..', 'data', 'QM9')
 transform = T.Compose([MyTransform(), Complete(), T.Distance(norm=False)])
 dataset = QM9(path, transform=transform).shuffle()
 
@@ -139,3 +139,4 @@ for epoch in range(1, 301):
 
     print(f'Epoch: {epoch:03d}, LR: {lr:7f}, Loss: {loss:.7f}, '
           f'Val MAE: {val_error:.7f}, Test MAE: {test_error:.7f}')
+
