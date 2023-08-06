@@ -1,0 +1,27 @@
+body {
+  background-color: #2E3440;
+  color: #D8DEE9;
+  font-family: "Fira Code", monospace;
+}
+
+.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+  color: #E5E9F0;
+}
+
+.reveal a {
+  color: #88C0D0;
+}
+
+.reveal code, .reveal pre {
+  background-color: #3B4252;
+  color: #D8DEE9;
+}
+
+.reveal pre code {
+  color: #81A1C1;
+}
+
+.reveal blockquote {
+  color: #81A1C1;
+  border-left: 4px solid #81A1C1;
+}
