@@ -52,3 +52,19 @@ tmpdf <- tibble(
     Sales = round(rnorm(length(Date), 10000, 3000))
 )
 tmpdf %>% dplyr::mutate(FinWeek = finisoweek(Date), IsoWeek = isoweek(Date))
+
+
+calculate_fiscal_week <- function(date) {
+    # Extract the year and month from the input date
+    year <- year(date)
+    month <- month(date)
+    # Determine the fiscal year start month
+    fiscal_year_start_month <- 7 # April
+    # Calculate the fiscal year
+    fiscal_year <- ifelse(month >= fiscal_year_start_month, year, year - 1)
+    # Calculate the fiscal week
+    fiscal_week <- week(date) - week(ymd(paste(fiscal_year, fiscal_year_start_month, "01")))
+    return(fiscal_week)
+}
+
+calculate_fiscal_week(tmpdf$Date)
