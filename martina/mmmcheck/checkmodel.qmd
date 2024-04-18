@@ -1,0 +1,93 @@
+---
+title: "Model Sanity Report"
+author: "Martina Cabraja"
+date: 2024-04-18
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    code-fold: true
+    css: styles.css
+    embed-resources: true
+---
+
+## Setup
+
+```{r}
+#| warning: false
+#| message: false
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(car)
+modeldf <- readr::read_csv("./model-fit.csv")
+res <- modeldf[["Residual"]]
+```
+
+## Overall model sanity
+
+```{r}
+#| label: tbl-statistical-test
+#| warning: false
+#| message: false
+#| tbl-cap: The statistical test and their meaning as well as if the model passed or not.
+resdf <- tibble(
+    Test = c("Durbin-Watson", "Shapiro-Wilks", "PACF", "Box-Pierce", "Correlation test"),
+    Purpose = c("Autocorrelation", "Normality", "Autocorrelation", "Autocorrelation", "Heteroskedasticity"),
+    # Value = NA,
+    Pass = c(
+        all(abs(car::dwt(res, max.lag = 20) - 2) < 1),
+        shapiro.test(res)$p.value > 0.05,
+        all(abs(pacf(res, plot = FALSE)$acf[, , 1]) < 0.13),
+        all(sapply(1:20, FUN = \(x) Box.test(res, lag = x)$p.value) > 0.05),
+        cor.test(modeldf$Actual, modeldf$Residual)$p.value > 0.05
+    )
+)
+resdf %>% knitr::kable()
+```
+
+## Visual Inspections
+
+### Autocorrelation
+
+```{r}
+#| label: fig-pacf
+#| fig-cap: "Partial Autocorrelation"
+#| warning: false
+pacf(res)
+```
+
+### Normality
+
+```{r}
+#| label: fig-normality
+#| fig-cap: "Normally distributed residuals"
+#| warning: false
+modeldf %>% ggplot(aes(Residual)) +
+    ggplot2::geom_histogram(aes(y = after_stat(density)), fill = nord::nord("frost")[4]) +
+    ## ggplot2::geom_density() +
+    stat_function(
+        fun = dnorm,
+        args = list(mean = mean(0), sd = sd(res)),
+        lwd = 2,
+        col = nord::nord("frost")[1]
+    ) +
+    ggplot2::theme_minimal(base_size=16) +
+    ggplot2::scale_x_continuous(labels = scales::comma) + ylab("Density")
+```
+
+### Heteroskedasticity
+
+```{r}
+#| label: fig-heteroskedasticity
+#| fig-cap: "Heteroskedasticity is present."
+#| warning: false
+
+modeldf %>% ggplot2::ggplot(aes(x = Residual, y = Actual)) + 
+    geom_point() + 
+    theme_minimal(base_size=16) +
+    ggplot2::scale_x_continuous(labels = scales::comma)  +
+    ggplot2::scale_y_continuous(labels = scales::comma) +
+    geom_smooth(method=lm)
+
+```
