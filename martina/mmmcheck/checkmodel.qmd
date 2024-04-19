@@ -17,12 +17,19 @@ format:
 ```{r}
 #| warning: false
 #| message: false
+
 library(readr)
 library(ggplot2)
 library(dplyr)
 library(car)
-modeldf <- readr::read_csv("./model-fit.csv")
+library(moments)
+library(lubridate)
+modeldf <- readr::read_csv("./model-fit.csv") %>% 
+    dplyr::mutate(yearweek = paste(year, stringr::str_pad(week, width=2, pad="0"), sep="-")) %>%
+    dplyr::mutate(Date = lubridate::parse_date_time(paste0(yearweek, "-1"), "Y-W-w"))
 res <- modeldf[["Residual"]]
+bic <- function(x, n, k) n*log(var(x)) + k*log(n)
+
 ```
 
 
@@ -33,19 +40,25 @@ res <- modeldf[["Residual"]]
 #| warning: false
 #| message: false
 #| tbl-cap: The statistical test and their meaning as well as if the model passed or not.
+
 resdf <- tibble(
-    Test = c("Durbin-Watson", "Shapiro-Wilks", "PACF", "Box-Pierce", "Correlation test"),
-    Purpose = c("Autocorrelation", "Normality", "Autocorrelation", "Autocorrelation", "Heteroskedasticity"),
+    Test = c("Durbin-Watson", "Shapiro-Wilks", "PACF", "Box-Pierce", "Correlation test", "Skewness", "Kurtosis", "Kolmogorov-Smirnov", "Kolmogorov-Smirnov"),
+    Purpose = c("Autocorrelation", "Normality", "Autocorrelation", "Autocorrelation", "Heteroskedasticity", "Normality", "Normality", "Residual Theoretical Similarity", "Predictive Theoretical Similarity"),
     # Value = NA,
     Pass = c(
         all(abs(car::dwt(res, max.lag = 20) - 2) < 1),
         shapiro.test(res)$p.value > 0.05,
         all(abs(pacf(res, plot = FALSE)$acf[, , 1]) < 0.13),
         all(sapply(1:20, FUN = \(x) Box.test(res, lag = x)$p.value) > 0.05),
-        cor.test(modeldf$Actual, modeldf$Residual)$p.value > 0.05
+        cor.test(modeldf$Actual, modeldf$Residual)$p.value > 0.05,
+        abs(moments::skewness(res)) < 0.5,
+        abs(moments::kurtosis(res)-3) < 0.5,
+        ks.test(res, rnorm(length(res), 0, sd(res)))$p.value > 0.05,
+        ks.test(modeldf$Actual, modeldf$Model)$p.value > 0.05
     )
 )
 resdf %>% knitr::kable()
+
 ```
 
 ## Visual Inspections
@@ -80,6 +93,11 @@ modeldf %>% ggplot(aes(Residual)) +
 
 ### Heteroskedasticity
 
+Heteroskedasticity says something about how the variance of the residuals vary
+with the scale of the target variable. Why does that matter? Well it matters
+because you don't want to make bigger errors just because you are predicting a
+larger value.
+
 ```{r}
 #| label: fig-heteroskedasticity
 #| fig-cap: "Heteroskedasticity is present."
@@ -91,6 +109,26 @@ modeldf %>% ggplot2::ggplot(aes(x = Residual, y = Actual)) +
     ggplot2::scale_x_continuous(labels = scales::comma)  +
     ggplot2::scale_y_continuous(labels = scales::comma) +
     geom_smooth(method=lm)
+
+```
+
+Let's look at a rolling window of 100 residuals and see how the variance
+changes over time. In @fig-sdplotoverresiduals we can see that it's not
+constant.
+
+```{r}
+#| label: fig-sdplotoverresiduals
+#| fig-cap: "Variance of residuals is not constant over time."
+#| warning: false
+
+w <- 100
+f <- sd 
+tmpdf <- tibble(SDs=zoo::rollapply(res, width = w, FUN=f), Date=tail(modeldf$Date, length(SDs)))
+tmpdf %>% ggplot(aes(x=Date, y=SDs)) + geom_point() + 
+    theme_minimal(base_size=16) + 
+    geom_hline(yintercept = sd(res)) +
+    geom_smooth(level=0.999) +
+    scale_y_continuous(labels=scales::comma) + ylab("Residual Standard Deviation") + xlab("")
 
 ```
 
