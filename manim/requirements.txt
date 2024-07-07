@@ -9,7 +9,7 @@ colour==0.1.5
 decorator==5.1.1
 executing==1.2.0
 glcontext==2.3.7
-idna==3.4
+idna==3.7
 ipython==8.14.0
 isosurfaces==0.1.0
 jedi==0.18.2
